@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CU WATER | Smart Hydration</title>
+    <style>
+        :root {
+            --primary-blue: #0077be;
+            --deep-blue: #003b5c;
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Water Bubbles Animation */
+        .bubbles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.1));
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255,255,255,0.2), inset 0 0 20px rgba(255,255,255,0.5);
+            animation: float 10s infinite ease-in;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0) scale(0.8); opacity: 0; }
+            10% { opacity: 1; }
+            50% { transform: translateY(-50vh) translateX(20px) scale(1.2); }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-120vh) translateX(-20px) scale(0.8); opacity: 0; }
+        }
+
+        /* Navigation */
+        nav {
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #00d2ff;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            background: -webkit-linear-gradient(#00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin-bottom: 30px;
+            color: #d1d8e0;
+        }
+
+        /* Products Grid */
+        .products-section {
+            padding: 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .products-section h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .product-card h3 {
+            color: #00d2ff;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
+        }
+
+        /* Modals for Auth & Checkout */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #1e272e;
+            padding: 40px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid var(--glass-border);
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0,0,0,0.5);
+            padding: 30px;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bubbles" id="bubble-container"></div>
+
+    <nav>
+        <div class="logo">CU WATER</div>
+        <div class="nav-links">
+            <a href="#products">Products</a>
+            <a href="#" onclick="openModal('loginModal')">Login</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Smart Hydration</h1>
+        <p>Premium, eco-friendly mineral and functional water delivered directly to your doorstep. Experience nature's purity in every drop.</p>
+        <button class="btn" onclick="document.getElementById('products').scrollIntoView()">Shop Now</button>
+    </div>
+
+    <div id="products" class="products-section">
+        <h2>Our Premium Selection</h2>
+        <div class="grid">
+            <div class="product-card">
+                <h3>Premium Mineral Water</h3>
+                <p>Available in 500ml, 1L, 2L bottles & 20L Home Can</p>
+                <button class="btn" onclick="startCheckout('Premium Mineral Water')">Order COD</button>
+            </div>
+            <div class="product-card">
+                <h3>CU Alkaline Water</h3>
+                <p>300ml Plastic Tin - Balanced pH for optimal health</p>
+                <button class="btn" onclick="startCheckout('CU Alkaline Water (300ml)')">Order COD</button>
+            </div>
+            <div class="product-card">
+                <h3>CU Energy Water</h3>
+                <p>300ml Plastic Tin - Hydration meets revitalization</p>
+                <button class="btn" onclick="startCheckout('CU Energy Water (300ml)')">Order COD</button>
+            </div>
+            <div class="product-card">
+                <h3>CU Jelly Water</h3>
+                <p>500ml Plastic Bottle - A unique hydration experience</p>
+                <button class="btn" onclick="startCheckout('CU Jelly Water (500ml)')">Order COD</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Location: Alluru | Contact: 9100805905 | Email: upendravarma@icloud.com</p>
+        <p style="margin-top: 10px; font-size: 12px; color: #888;">© 2026 CU WATER (SMART HYDRATION). All rights reserved.</p>
+    </footer>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>Email Login</h2>
+            <p style="font-size: 12px; margin-bottom: 15px;">Verify your email to access your account</p>
+            <input type="email" id="userEmail" placeholder="Enter your email">
+            <button class="btn" onclick="simulateEmailVerification()">Send Verification Link</button>
+            <button class="btn" style="background: transparent; border: 1px solid #fff; margin-top: 10px;" onclick="closeModal('loginModal')">Cancel</button>
+        </div>
+    </div>
+
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content">
+            <h2>Verify Mobile for COD</h2>
+            <p id="checkoutProduct" style="color: #00d2ff; margin-bottom: 15px;"></p>
+            <input type="tel" id="mobileNumber" placeholder="Enter Mobile Number (e.g. 9876543210)">
+            <button class="btn" onclick="showOtpField()">Get OTP</button>
+            
+            <div id="otpSection" style="display: none; margin-top: 15px;">
+                <input type="text" id="otpCode" placeholder="Enter 4-digit OTP (Mock: 1234)">
+                <button class="btn" onclick="processOrder()">Confirm & Order via WhatsApp</button>
+            </div>
+            <button class="btn" style="background: transparent; border: 1px solid #fff; margin-top: 10px;" onclick="closeModal('checkoutModal')">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // Generate floating bubbles dynamically
+        const bubbleContainer = document.getElementById('bubble-container');
+        for (let i = 0; i < 20; i++) {
+            let bubble = document.createElement('div');
+            bubble.classList.add('bubble');
+            let size = Math.random() * 60 + 10; // Random size
+            bubble.style.width = `${size}px`;
+            bubble.style.height = `${size}px`;
+            bubble.style.left = `${Math.random() * 100}%`;
+            bubble.style.animationDuration = `${Math.random() * 5 + 5}s`;
+            bubble.style.animationDelay = `${Math.random() * 5}s`;
+            bubbleContainer.appendChild(bubble);
+        }
+
+        let selectedProduct = '';
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { 
+            document.getElementById(id).style.display = 'none'; 
+            if(id === 'checkoutModal') {
+                document.getElementById('otpSection').style.display = 'none';
+                document.getElementById('mobileNumber').style.display = 'block';
+            }
+        }
+
+        // Mock Email Login
+        function simulateEmailVerification() {
+            const email = document.getElementById('userEmail').value;
+            if(!email.includes('@')) {
+                alert("Please enter a valid email.");
+                return;
+            }
+            alert(`Verification link sent to ${email}. (Note: Backend required for real emails)`);
+            closeModal('loginModal');
+        }
+
+        // Checkout Flow
+        function startCheckout(product) {
+            selectedProduct = product;
+            document.getElementById('checkoutProduct').innerText = `Ordering: ${product}`;
+            openModal('checkoutModal');
+        }
+
+        function showOtpField() {
+            const mobile = document.getElementById('mobileNumber').value;
+            if(mobile.length < 10) {
+                alert("Please enter a valid mobile number.");
+                return;
+            }
+            // In a real app, an API call to Twilio/Firebase goes here to send the SMS.
+            alert("Mock OTP sent! Enter '1234' to proceed.");
+            document.getElementById('mobileNumber').style.display = 'none';
+            document.getElementById('otpSection').style.display = 'block';
+        }
+
+        function processOrder() {
+            const otp = document.getElementById('otpCode').value;
+            if(otp !== '1234') {
+                alert("Invalid OTP. Try again.");
+                return;
+            }
+            
+            // Format WhatsApp Message
+            const businessNumber = "919100805905"; // Country code + your number
+            const message = `Hello CU WATER!%0A%0AI have verified my number and would like to place a Cash on Delivery (COD) order.%0A%0A*Product:* ${selectedProduct}%0A%0APlease let me know the total price and delivery details.`;
+            
+            const whatsappUrl = `https://wa.me/${businessNumber}?text=${message}`;
+            
+            alert("Verification successful! Redirecting to WhatsApp to complete your COD order.");
+            closeModal('checkoutModal');
+            window.open(whatsappUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
